@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reagentário LEQUIM — Catálogo</title>
+<link rel="icon" href="data:,">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+:root{
+  /* Tema único, fixo: azul e branco (não muda com o modo escuro do sistema) */
+  --c-deep:#03045E; --c-teal:#0077B6; --c-bluegreen:#0096C7;
+  --c-turquoise:#00B4D8; --c-skyaqua:#48CAE4; --c-frosted1:#90E0EF;
+
+  --bg:#ffffff; --surface:#ffffff; --ink:#0B2545; --muted:#0077B6;
+  --line:rgba(0,119,182,.22); --accent:#0077B6; --accent-ink:#ffffff;
+  --mono-bg:rgba(0,150,199,.08);
+  --thead-bg:#0077B6; --thead-ink:#ffffff;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  min-height:100%;
+}
+.wrap{max-width:1000px; margin:0 auto; padding:clamp(18px,4vw,28px) clamp(14px,4vw,20px) 60px;}
+header{margin-bottom:clamp(16px,3vw,22px);}
+.logo{height:clamp(30px,6vw,38px); width:auto; display:block; margin-bottom:16px;}
+.eyebrow{font-size:13px; color:var(--muted); font-weight:600; margin:0 0 6px;}
+h1{font-size:clamp(21px,4.5vw,27px); margin:0 0 8px; letter-spacing:-0.01em;}
+.lede{color:var(--muted); font-size:clamp(13.5px,3vw,14.5px); line-height:1.55; max-width:66ch; margin:0;}
+.controls{
+  display:flex; gap:10px; flex-wrap:wrap; margin:20px 0 6px;
+  position:sticky; top:0; padding:10px 0; background:var(--bg); z-index:2;
+}
+input[type="search"], select{
+  font:inherit; font-size:16px; padding:11px 12px; border-radius:8px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink);
+}
+input[type="search"]{flex:1 1 240px; min-width:0;}
+select{flex:1 1 180px; min-width:0;}
+input[type="search"]:focus, select:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.count{color:var(--muted); font-size:13px; margin:4px 0 14px;}
+.tablewrap{
+  border:1px solid var(--line); border-radius:10px; overflow:auto;
+  background:var(--surface); max-height:62vh;
+}
+table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:620px;}
+thead th{
+  position:sticky; top:0; background:var(--thead-bg); text-align:left;
+  padding:10px 12px; border-bottom:1px solid var(--line); color:var(--thead-ink);
+  font-weight:600; font-size:12px; text-transform:none;
+}
+tbody td{padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:nth-child(even){background:rgba(0,150,199,.05);}
+tbody tr:hover{background:var(--mono-bg);}
+.name{font-weight:600;}
+.mol{width:56px;}
+.mol img{width:44px; height:44px; object-fit:contain; border-radius:6px; background:var(--mono-bg); display:block;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:var(--muted); font-size:12.5px;}
+.cat{color:var(--muted);}
+.empty{padding:36px 12px; text-align:center; color:var(--muted);}
+.banner{
+  font-size:13px; padding:9px 12px; border-radius:8px; margin:0 0 14px;
+  background:var(--mono-bg); color:var(--muted); border:1px solid var(--line);
+}
+.banner.warn{color:#8a5a12;}
+
+tbody tr{cursor:pointer;}
+.scrim{
+  position:fixed; inset:0; background:rgba(10,15,16,.4); z-index:9; opacity:0;
+  transition:opacity .18s ease;
+}
+.panel{
+  position:fixed; top:0; right:0; height:100%; width:min(420px, 100%);
+  background:var(--surface); border-left:1px solid var(--line); z-index:10;
+  padding:calc(22px + env(safe-area-inset-top,0px)) 22px calc(22px + env(safe-area-inset-bottom,0px));
+  overflow-y:auto; transform:translateX(100%); transition:transform .2s ease;
+  box-shadow:-8px 0 24px rgba(0,0,0,.12);
+}
+.panel.open{transform:translateX(0);}
+.scrim.open{opacity:1;}
+.panel-close{
+  position:absolute; top:16px; right:16px; width:32px; height:32px; border-radius:8px;
+  border:1px solid var(--line); background:var(--bg); color:var(--ink); font-size:15px;
+  cursor:pointer;
+}
+.panel-close:hover{background:var(--mono-bg);}
+.p-img{width:100%; max-width:180px; height:180px; object-fit:contain; background:var(--mono-bg); border-radius:10px; margin:6px 0 16px;}
+.p-name{font-size:19px; font-weight:700; margin:0 0 4px; padding-right:36px;}
+.p-loc{display:inline-block; font-size:12px; color:var(--accent); background:var(--mono-bg); padding:3px 9px; border-radius:100px; margin-bottom:16px;}
+.p-field{padding:10px 0; border-top:1px solid var(--line);}
+.p-field:first-of-type{border-top:none;}
+.p-label{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin:0 0 3px;}
+.p-value{font-size:14.5px;}
+.p-value.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+.p-value.missing{color:var(--muted); font-style:italic;}
+footer{margin-top:18px; color:var(--muted); font-size:12.5px; line-height:1.6;}
+footer code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:var(--mono-bg); padding:1px 5px; border-radius:4px;}
+.src-dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle;}
+.p-link{
+  display:inline-flex; align-items:center; gap:6px; font-size:13.5px; font-weight:600;
+  color:var(--accent-ink); background:var(--accent); padding:8px 14px; border-radius:8px;
+  text-decoration:none; margin-top:4px;
+}
+.p-link:hover{opacity:.88;}
+.p-link.secondary{background:var(--mono-bg); color:var(--ink);}
+@media (max-width:640px){
+  .controls{flex-direction:column; align-items:stretch;}
+  input[type="search"], select{flex:1 1 auto; width:100%;}
+  .tablewrap{max-height:68vh;}
+  table{min-width:0;}
+  thead th:first-child, tbody td.mol{display:none;}
+  tbody td{padding:10px 8px; font-size:12.5px;}
+  .panel{width:100%;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" src="data:image/png;base64,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" alt="Instituto de Química - USP">
+    <p class="eyebrow">LEQUIM · Reagentário</p>
+    <h1>Catálogo de reagentes</h1>
+    <p class="lede">Busque, filtre por localização ou categoria, e clique num reagente pra ver os detalhes.</p>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <div class="controls">
+    <input type="search" id="q" placeholder="Buscar por nome, CAS ou fórmula..." autocomplete="off">
+    <select id="loc"><option value="">Todas as localizações</option></select>
+    <select id="cat"><option value="">Todas as categorias</option></select>
+  </div>
+  <p class="count" id="count"></p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th></th><th>Nome</th><th>Localização</th><th>Categoria</th><th>CAS</th><th>Quantidade</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty" hidden>Nenhum reagente encontrado com esse filtro.</div>
+  </div>
+
+  <footer>
+    Estruturas moleculares carregadas em tempo real do PubChem (pubchem.ncbi.nlm.nih.gov) a partir do número CAS — nenhuma imagem fica guardada neste html. Clique em um reagente pra ver os detalhes.
+  </footer>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="panel" id="panel" hidden aria-hidden="true">
+  <button class="panel-close" id="panelClose" aria-label="Fechar">✕</button>
+  <div id="panelBody"></div>
+</aside>
+
+<script>
+// ============================================================
+// 1) Cole aqui o link da aba "Base de dados - HTML" (tabela db_HTML)
+//    publicada como CSV: Arquivo > Compartilhar > Publicar na Web >
+//    escolha essa aba > formato CSV > Publicar.
+//    Enquanto estiver vazio, a página usa os dados de exemplo abaixo.
+// ============================================================
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSfzpr8BAA8kJb2YS8P79KCAibz63plcLW_Hr_IpPsw3k_2kipac2qxbzGl8SNQOqefr6go8wOFF4jY/pub?gid=889952977&single=true&output=csv";
+
+// Cada campo aceita vários nomes de coluna possíveis (em pt ou en, com ou sem
+// espaço/acento — normKey() já ignora isso). Adicione um alias aqui se sua
+// planilha usar outro nome e o site não reconhecer.
+const ALIASES = {
+  nome:        ["nome","compoundname","name","reagente"],
+  cas:         ["cas","casnumber","casno","casnum"],
+  formula:     ["formula","molecularformula"],
+  massamolar:  ["massamolar","molarmass","massa"],
+  categoria:   ["categoria","category","category1"],
+  quantidade:  ["quantidade","quantity","qtd"],
+  fabricante:  ["fabricante","manufacturer","fornecedor"],
+};
+const EXPECTED = Object.keys(ALIASES);
+// Opcionais: se a planilha não tiver essas colunas, os recursos ligados a
+// elas simplesmente não aparecem, sem gerar erro.
+// SOURCE = de qual aba original o item veio (usado no dropdown de localização).
+// CAT2 = subcategoria/grupo funcional (mostrado só no painel de detalhes).
+// LOCDETAIL = posição física fina (ex: "Freezer D, Prateleira 3"), também só no painel.
+const SOURCE_ALIASES = ["source","origem","aba"];
+const CAT2_ALIASES = ["category2","subcategoria","grupofuncional"];
+const LOCDETAIL_ALIASES = ["location","local","posicao","detalhelocalizacao"];
+// FISPQ/SDS: link real, se a planilha tiver um preenchido pra esse reagente.
+const FISPQ_ALIASES = ["fispq","sds","fispqsds","fichadeseguranca"];
+
+// Dados de exemplo (amostra real da planilha original) usados como fallback.
+let DATA = [["1-Octanesulfonic acid sodium salt","5324-84-5","C8H17O3SNa",216.27,"Anionic surfactant","Sulfonic acid (sal de ácido sulfonico)","","","Padrões","",""],["Acetaminophen","103-90-2","CH3CONHC6H4OH",151.16,"Aromatic amide (Amida aromática)","Fenol, amida","100g","Sigma Aldrich","Padrões","",""],["Acid Orange 31 (250 mg, Sigma)","5858-89-9","C16H10ClN2NaO4S",384.78,"Azo dye","Azo,fenol, aromático, sulfonato de sódio, haleto","250mg","Sigma Aldrich","Padrões","",""],["Acid red 114 (50 g, Sigma)","6459-94-5","C37H28N4Na2O10S3",830.31,"Azo dye","Azo, sulfonato de sódio,fenol, éster sulfonico,","50g","Sigma Aldrich","Padrões","",""],["Acid Red 4 (1 g, Sigma)","5858-39-9","C17H13N2NaO5S",380.36,"Azo dye","Azo, sulfonato de sódio, fenol, éter, anel aromático","1g","Sigma Aldrich","Padrões","",""],["Ácido bifenil (2) carboxílico","947-84-2","C6H5C6H4CO2H",198.22,"Ácido carboxílico aromático","carboxila, anel Aromatico","","","Padrões","",""],["Ácido hidroxi(m) benzóico","99-06-9","HOC6H4CO2H",138.12,"Ácido carboxilico","Carboxila, hidroxila (fenol)","","","Padrões","",""],["Ácido metil(p) hidroxi benzóico","3006-96-0","C8H8O3",152.15,"Ácido carboxilico","Hidroxila, carboxila","","","Padrões","",""],["Ácido tereftálico","100-21-0","C6H4-1,4-(CO2H)2",166.13,"Ácido carboxilico","Aromatico, 2 carboxila","","","Padrões","",""],["Ácido toluico(p)","99-94-5","CH3C6H4CO2H",136.15,"Ácido carboxilico","Carboxila, metila","","","Padrões","",""],["Aconitic acid (trans) (25 g, Sigma)","4023-65-8","HO2CCH2C(CO2H)=CHCO2H",174.11,"Ácido carboxilico","3 carboxilas","25g","Sigma Aldrich","Padrões","",""],["Alanina (beta) (25 g, Sigma)","107-95-9","NH2CH2CH2COOH",89.09,"Aminoácido","Carboxila, amina","25g","Sigma Aldrich","Padrões","",""],["Aldcarb Pestanal","116-06-03","C7H14N2O2S",190.26,"Carbamato","sulfeto, oxima","100mg","Sigma Aldrich","Padrões","Armário de padrões",""],["Allylanisole (4) 100 g, Sigma)","140-67-0","H2C=CHCH2C6H4OCH3",148.2,"Phenylpropanoid (fenilpropanóide)","","100g","Sigma Aldrich","Padrões","",""],["Allura red AC (vermelho 40) (100 g, Aldrich)","25956-17-6","C18H14N2Na2O8S2",496.42,"Azo dye (azocorante)","","100g","Sigma Aldrich","Padrões","",""],["Amaranth (25 g, Sigma)","915-67-3","C20H11N2Na3O10S3",604.47,"Azo dye (azocorante)","","25g","Sigma Aldrich","Padrões","",""],["Amcinonide (1 g, Fluka)","51022-69-6","C28H35FO7",502.57,"Esteroide fluorato","ester, hidroxila, grupo spirocetal","1g","Fluka (Sigma Aldrich)","Padrões","",""],["Aminohippuric acid (p) (10 g, Sigma)","61-78-9","NH2C6H4C(O)NHCH2COOH",194.19,"Ácido carboxilico","Amina primária, aromático","10g","Fluka(Sigma Aldrich)","Padrões","",""],["Ammonium sulfamate (100 g, Fluka)","7773-06-0","NH4SO3NH2",114.12,"Sal de amônio, inorgânico)","","100g","Fluka(Sigma Aldrich)","Padrões","",""],["Anethole (trans) (25 mL, combustível, Sigma)","4180-23-8","CH3CH=CHC6H4OCH3",148.2,"Phenylpropnanoid (fenilpropanóide), anisole(anisol)","","25mL","Sigma Aldrich","Padrões","",""],["Anisic (p) acid (5 g, Sigma)","0100-09-04","CH3OC6H4CO2H","","Aromatic carboxylic acid (ácido carboxílico aromático)","","5g","Sigma Aldrich","Padrões","",""],["Antraceno (vial pequeno)","0120-12-7","C14H10",178.23,"Polycyclic aromatic hydrocarbon (hidrocarboneto aromático policíclico)","","","","Padrões","",""],["Asiaticoside (5 mL, Fluka)","16830-15-2","C48H78O19",959.12,"Pentacyclic triterpenoid (triterpenóide pentacíclico)","","5mL","Fluka(Sigma Aldrich)","Padrões","",""],["Aspartic acid (D) (25 g, Sigma)","1783-96-6","HO2CCH2CH(NH2)CO2H",133.1,"Amino acid (aminoácido)","","25g","Sigma Aldrich","Padrões","",""],["Atropin sulfate (200 mg, Boehringer Ingelheim)","5908-99-6","(C17H23NO3)2 · H2SO4 · H2O",694.83,"Alcaloide (sal de sulfato)","Éster, álccol, amina terciária, éter","200mg","","Padrões","",""],["Atropine (1 g, Sigma-Aldrich)","51-55-8","C17H23NO3",289.37,"Tropane alkaloid (alcaloide)","","1g","Sigma Aldrich","Padrões","",""],["Azelaic acid (Sigma, 100 mg)","123-99-9","HO2C(CH2)7CO2H",188.22,"Acido caboxilico","","100mg","Sigma Aldrich","Padrões","",""],["Azino (2,2') bis ethyl (3) benzothiazoline sulfonic acid (6) diammonium salt (ABTS) (1 g, Sigma)","30931-67-0","C18H24N6O6S4",548.68,"Sal de diamônio","","1g","Sigma Aldrich","Padrões","",""],["Azithromycin (25 mg, Sigma)","#VALUE!","C38H72N2O12",748.98,"Macrolídeo","Éster cíclico, amina terciária, álcool, éter","25mg","Sigma Aldrich","Padrões","",""],["Baclofen (+/-) (500 mg, Sigma)","63701-55-3","C10H12ClNO2 . HCl",250.12,"Acido caboxilico","Amida primária, haleto organico","500mg","Sigma Aldrich","Padrões","",""],["Bezafibrafe (5 g, Sigma)","41859-67-0","C19H20ClNO4",361.82,"Fibrate (fibrato)","Ácido carboxílico, amida aromática, éter aromático, haleto","5g","Sigma Aldrich","Padrões","",""],["Bifenil(4) carboxílico","92-92-2","C6H5C6H4CO2H",198.22,"Ácido carboxílico","Aromático","","","Padrões","",""],["BIS-TRIS (25 g, Sigma)","6976-37-0","C8H19NO5",209.24,"Amina terciária","Álcool","25g","Sigma Aldrich","Padrões","",""],["Bisabolol (alpha) (25 mL, Fluka)","515-69-5","C15H26O","","Sesquiterpene alcohol ( álcool sesquiterpênico)","","25mL","Fluka (Sigma Aldrich)","Padrões","",""],["Bismut (III) gallate basic hydrate (subgalato) (100 g, Sigma)","99-26-3","C7H5BiO6 · xH2O","","Organometálico (sal orgânico)","Ácido carboxílico, fenol, aromático","100g","Sigma Aldrich","Padrões","",""],["Borneol (100 g, Sigma)","507-70-0","C10H18O",154.3,"Bicyclic monoterpenoid (monoterpenoide bicíclico)","","100g","Sigma Aldrich","Padrões","",""],["Bromo (3) - methylbenzoic (4) acid (5 g, Sigma)","7697-26-9","BrC6H3(CH3)CO2H",215.04,"Carboxylic acid/ aryl halide/ aromatic alkyl","","5g","Sigma Aldrich","Padrões","",""],["Bromobenzoic (4) acid (10 g, Sigma)","586-76-5","BrC6H4CO2H",201.02,"Carboxylic acid/ aryl halide/ aromatic","","10g","Sigma Aldrich","Padrões","",""],["Bromoterephthalic (2) acid (5 g, Sigma)","586-35-6","BrC6H3-1,4-(CO2H)2",245.03,"Carboxylic acid/ aryl halide/ aromatic","","5g","Sigma Aldrich","Padrões","",""],["Bronopol (25 g, TheBoots Company)","52-51-7","HOCH2C(Br)(NO2)CH2OH",199.99,"Halohydrin/ nitro compound","","25g","","Padrões","",""],["Ammonium acetate - 4 frascos","","","","","","","","A","",""],["Calcium acetate","","","","","","","","A","",""],["Sodium acetate - 4 frascos","","","","","","","","A","",""],["Sodium benzoate - 2 frascos","","","","","","","","A","",""],["Sodium bicarbonate - 2 frascos","","","","","","","","A","",""],["Sodium bisulfite - 5 frascos","","","","","","","","A","",""],["Potassium bromide","","","","","","","","A","",""],["Ammonium carbonate - 2 frascos","","","","","","","","A","",""],["Barium carbonate","","","","","","","","A","",""],["Calcium carbonate","","","","","","","","A","",""],["Sodium carbonate - 3 frascos","","","","","","","","A","",""],["Ammonium Chloride","","","","","","","","A","",""],["Barium chloride","","","","","","","","A","",""],["Calcium chloride - 3 frascos","","","","","","","","A","",""],["Cesium chloride","","","","","","","","A","",""],["Cromium (III) chloride","","","","","","","","A","",""],["Iron (II) chloride","","","","","","","","A","",""],["Iron (III) chloride - 2 frascos","","","","","","","","A","",""],["Acetylsalicilic acid - 2 frascos","","","","","","","","B","",""],["Adipic acid","","","","","","","","B","",""],["Aminobenzoic acid","","","","","","","","B","",""],["Ascorbic acid","","","","","","","","B","",""],["Aspartic acid - 3 frascos","","","","","","","","B","",""],["Benzoic acid - 2 frascos","","","","","","","","B","",""],["Boric acid - 2 frascos","","","","","","","","B","",""],["Bromo (11) decanoic acid","","","","","","","","B","",""],["Citric acid - 6 frascos","","","","","","","","B","",""],["Cholic acid","","","","","","","","B","",""],["Dihidroxybenzoic (3,5) acid","","","","","","","","B","",""],["Dinitrobenzoic (3,5) acid - 2 frascos","","","","","","","","B","",""],["Stearic acid","","","","","","","","B","",""],["Fumaric acid - 2 frascos","","","","","","","","B","",""],["Gallic acid (3,4,5-Trihydroxybenzoic acid)","","","","","","","","B","",""],["Glycolic acid","","","","","","","","B","",""],["Glutamic acid","","","","","","","","B","",""],["Glutamic (L) acid","","","","","","","","B","",""],["Phenol","","","","","","","","C","",""],["Potassium ferricyanide","","","","","","","","C","",""],["Sodium fluorescein","","","","","","","","C","",""],["Methionine acetic","","","","","","","","C","",""],["Cholic acid","","","","","","","","C","",""],["Hydroxyethylcellulose","","","","","","","","C","",""],["Basic Fuchsin","","","","","","","","C","",""],["Galactose (D-)","","","","","","","","C","",""],["Genapol","","","","","","","","C","",""],["Caffeine","","","","","","","","C","",""],["Glycylglycine (Gly-Gly)","","","","","","","","C","",""],["Glycine","","","","","","","","C","",""],["Glucose","","","","","","","","C","",""],["Glucone delta lactone","","","","","","","","C","",""],["Terephthalic acid (purified)","","","","","","","","C","",""],["Allantoin","","","","","","","","C","",""],["Aloin","","","","","","","","C","",""],["Hexamethonium bromide hydrate","","","","","","","","C","",""],["Isobutanol (1 L, Vetec, 1 L, Fluka) 3 frascos","","","","","","","","D","",""],["Butanol normal (1 L, Millinckrodt)","","","","","","","","D","",""],["Isopropanol (1L, Synth, Reagen) 8 frascos","","","","","","","","D","",""],["Propanol (n) / 1-Propanol (1 L, Synth)","","","","","","","","D","",""],["Dodecyl alcohol (100 mL)","","","","","","","","D","",""],["Cyclohexanol (frasco com nome Fernando)","","","","","","","","D","",""],["Decanol (2) (50 mL)","","","","","","","","D","",""],["Octanol (1) (250 mL, 1 L, Merck) 2 frascos","","","","","","","","D","",""],["Butyl acetate (1 L, Anydrol)","","","","","","","","D","",""],["Ethyl acetate ( 1L, Synth) 2 frascos","","","","","","","","D","",""],["Acetylacetone (1 L, Merck) 2 frascos","","","","","","","","D","",""],["N-Amyl propanol (500 mL)","","","","","","","","D","",""],["Benzene (1L, Merck, 1 L, Sigma) 2 frascos","","","","","","","","D","",""],["Butyleneglycol (1,3) (1 L, Braschim) 2 frascos","","","","","","","","D","",""],["Butyraldehyde (1 L, Fluka)","","","","","","","","D","",""],["Cyclohexane (500 mL, Merck)","","","","","","","","D","",""],["Dimethylsulfoxide (DMSO) (1 L x 2, Synth, 1 L, QM) 5 frascos","","","","","","","","D","",""],["Carbon sulfide (1 L, Merck) 2 frascos","","","","","","","","D","",""],["D-Galactose (100 g, Aldrich)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Açúcares",""],["Carbofuran (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Acephate (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Aldicarb (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Aldicarb-sulfone (100 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Aldrin (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Ametryn (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Azinphos methyl (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Carbaryl (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["DDE (4,4') (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Diazinon (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Dicofol (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Dimethoate (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Diuron (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Endosulfan (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Endrin ((250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Ethion (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""],["Linuron (250 mg, Riedel-de-Haën)","","","","","","","","Geladeira","Freezer D, Prateleira 3, caixa Pesticidas",""]];
+let CATS = ["Acido caboxilico","Alcaloide (sal de sulfato)","Amina terciária","Amino acid (aminoácido)","Aminoácido","Anionic surfactant","Aromatic amide (Amida aromática)","Aromatic carboxylic acid (ácido carboxílico aromático)","Azo dye","Azo dye (azocorante)","Bicyclic monoterpenoid (monoterpenoide bicíclico)","Carbamato","Carboxylic acid/ aryl halide/ aromatic","Carboxylic acid/ aryl halide/ aromatic alkyl","Esteroide fluorato","Fibrate (fibrato)","Halohydrin/ nitro compound","Macrolídeo","Organometálico (sal orgânico)","Pentacyclic triterpenoid (triterpenóide pentacíclico)","Phenylpropanoid (fenilpropanóide)","Phenylpropnanoid (fenilpropanóide), anisole(anisol)","Polycyclic aromatic hydrocarbon (hidrocarboneto aromático policíclico)","Sal de amônio, inorgânico)","Sal de diamônio","Sesquiterpene alcohol ( álcool sesquiterpênico)","Tropane alkaloid (alcaloide)","Ácido carboxilico","Ácido carboxílico","Ácido carboxílico aromático"];
+
+const catSel = document.getElementById('cat');
+const locSel = document.getElementById('loc');
+const rowsEl = document.getElementById('rows');
+const countEl = document.getElementById('count');
+const emptyEl = document.getElementById('empty');
+const qEl = document.getElementById('q');
+const bannerEl = document.getElementById('banner');
+
+// Nomes de fonte/aba -> rótulo amigável no dropdown (mantém o valor cru como chave).
+const SOURCE_LABELS = {'A':'Armário A','B':'Armário B','C':'Armário C','D':'Armário D',
+  'Geladeira':'Geladeira','EFDess':'Dessecador (EFDess)','Padrões':'Padrões'};
+const sourceLabel = v => SOURCE_LABELS[v] || v;
+// Cada localização ganha uma cor fixa da paleta, pra identificar de relance.
+const SOURCE_COLORS = {'Padrões':'#03045E','A':'#023E8A','B':'#0077B6','C':'#0096C7',
+  'D':'#00B4D8','Geladeira':'#48CAE4','EFDess':'#90E0EF'};
+const sourceColor = v => SOURCE_COLORS[v] || '#0077B6';
+const srcDot = v => v ? `<span class="src-dot" style="background:${sourceColor(v)}"></span>` : '';
+
+function normKey(s){
+  return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+}
+
+function banner(msg, warn){
+  bannerEl.textContent = msg;
+  bannerEl.className = 'banner' + (warn ? ' warn' : '');
+  bannerEl.hidden = false;
+}
+
+function rebuildSelects(){
+  catSel.innerHTML = '<option value="">Todas as categorias</option>';
+  CATS.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    catSel.appendChild(o);
+  });
+  const sources = [...new Set(DATA.map(r => r[8]).filter(Boolean))].sort();
+  locSel.innerHTML = '<option value="">Todas as localizações</option>';
+  sources.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s; o.textContent = sourceLabel(s);
+    locSel.appendChild(o);
+  });
+}
+
+function loadFromCsv(url){
+  banner('Carregando dados da planilha...');
+  Papa.parse(url, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results){
+      const fields = (results.meta.fields || []).map(f => ({raw: f, norm: normKey(f)}));
+      const findField = k => fields.find(f => ALIASES[k].includes(f.norm));
+      const missing = EXPECTED.filter(k => !findField(k));
+      if (missing.length){
+        const found = fields.map(f => f.raw).join(', ') || '(nenhuma)';
+        banner('Não encontrei coluna para: ' + missing.join(', ') + '. Colunas encontradas na planilha publicada: ' + found + '. Mostrando os dados de exemplo.', true);
+        return;
+      }
+      const colFor = k => findField(k).raw;
+      const sourceField = fields.find(f => SOURCE_ALIASES.includes(f.norm));
+      const cat2Field = fields.find(f => CAT2_ALIASES.includes(f.norm));
+      const locDetailField = fields.find(f => LOCDETAIL_ALIASES.includes(f.norm));
+      const fispqField = fields.find(f => FISPQ_ALIASES.includes(f.norm));
+      const rows = results.data
+        .filter(row => row[colFor('nome')] && String(row[colFor('nome')]).trim())
+        .map(row => [
+          String(row[colFor('nome')] || '').trim(),
+          String(row[colFor('cas')] || '').trim(),
+          String(row[colFor('formula')] || '').trim(),
+          parseFloat(String(row[colFor('massamolar')]).replace(',', '.')) || 0,
+          String(row[colFor('categoria')] || '').trim(),
+          cat2Field ? String(row[cat2Field.raw] || '').trim() : '',
+          String(row[colFor('quantidade')] || '').trim(),
+          String(row[colFor('fabricante')] || '').trim(),
+          sourceField ? String(row[sourceField.raw] || '').trim() : '',
+          locDetailField ? String(row[locDetailField.raw] || '').trim() : '',
+          fispqField ? String(row[fispqField.raw] || '').trim() : '',
+        ]);
+      DATA = rows;
+      CATS = [...new Set(rows.map(r => r[4]).filter(Boolean))].sort();
+      rebuildSelects();
+      bannerEl.hidden = true;
+      render();
+    },
+    error: function(){
+      banner('Não consegui carregar a planilha publicada (verifique o link do CSV_URL). Mostrando os dados de exemplo.', true);
+    }
+  });
+}
+
+let currentFiltered = [];
+
+function render(){
+  const q = qEl.value.trim().toLowerCase();
+  const cat = catSel.value;
+  const loc = locSel.value;
+  currentFiltered = DATA.filter(r => {
+    const matchesQ = !q || r[0].toLowerCase().includes(q) || r[1].toLowerCase().includes(q) || r[2].toLowerCase().includes(q);
+    const matchesCat = !cat || r[4] === cat;
+    const matchesLoc = !loc || r[8] === loc;
+    return matchesQ && matchesCat && matchesLoc;
+  });
+  rowsEl.innerHTML = currentFiltered.map((r, i) => `
+    <tr data-i="${i}">
+      <td class="mol">${molImg(r[1])}</td>
+      <td class="name">${esc(r[0])}</td>
+      <td class="cat">${srcDot(r[8])}${esc(sourceLabel(r[8]))}</td>
+      <td class="cat">${esc(r[4])}</td>
+      <td class="mono">${esc(r[1])}</td>
+      <td>${esc(r[6])}</td>
+    </tr>
+  `).join('');
+  countEl.textContent = `Mostrando ${currentFiltered.length} de ${DATA.length} reagentes`;
+  emptyEl.hidden = currentFiltered.length !== 0;
+}
+
+// Estrutura 2D vinda do PubChem, buscada pelo número CAS. Não guardamos nenhuma
+// imagem no site - o navegador de cada visitante busca direto no PubChem.
+function molImg(cas){
+  if(!cas) return '';
+  const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(cas)}/PNG?image_size=80x80`;
+  return `<img src="${url}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`;
+}
+
+function esc(s){
+  const d = document.createElement('div');
+  d.textContent = s == null ? '' : String(s);
+  return d.innerHTML;
+}
+
+// --- Painel de detalhes ---
+const panel = document.getElementById('panel');
+const panelBody = document.getElementById('panelBody');
+const scrim = document.getElementById('scrim');
+
+function field(label, value, mono){
+  const has = value !== '' && value != null;
+  return `<div class="p-field">
+    <p class="p-label">${label}</p>
+    <p class="p-value ${mono ? 'mono' : ''} ${has ? '' : 'missing'}">${has ? esc(value) : 'Ainda não cadastrado'}</p>
+  </div>`;
+}
+
+function fispqLink(r){
+  const real = r[10];
+  if (real) return `<a class="p-link" href="${esc(real)}" target="_blank" rel="noopener">Ver FISPQ/SDS ↗</a>`;
+  if (r[1]) {
+    const q = encodeURIComponent(`${r[0]} CAS ${r[1]} FISPQ SDS safety data sheet`);
+    return `<a class="p-link secondary" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">Buscar FISPQ/SDS ↗</a>`;
+  }
+  return '';
+}
+
+function openDetail(r){
+  const molarTxt = r[3] ? (r[3] + ' g/mol') : '';
+  panelBody.innerHTML = `
+    <img class="p-img" alt="" src="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(r[1])}/PNG?image_size=300x300" onerror="this.style.display='none'">
+    <p class="p-name">${esc(r[0])}</p>
+    ${r[8] ? `<span class="p-loc" style="background:${sourceColor(r[8])}22; color:${sourceColor(r[8])}">${srcDot(r[8])}${esc(sourceLabel(r[8]))}</span>` : ''}
+    <div style="margin:2px 0 14px;">${fispqLink(r)}</div>
+    ${field('CAS', r[1], true)}
+    ${field('Fórmula molecular', r[2], true)}
+    ${field('Massa molar', molarTxt)}
+    ${field('Categoria', r[4])}
+    ${field('Subcategoria / grupo funcional', r[5])}
+    ${field('Quantidade', r[6])}
+    ${field('Fabricante', r[7])}
+    ${field('Posição física', r[9])}
+  `;
+  panel.hidden = false; scrim.hidden = false;
+  requestAnimationFrame(() => { panel.classList.add('open'); scrim.classList.add('open'); });
+}
+
+function closeDetail(){
+  panel.classList.remove('open'); scrim.classList.remove('open');
+  setTimeout(() => { panel.hidden = true; scrim.hidden = true; }, 200);
+}
+
+rowsEl.addEventListener('click', e => {
+  const tr = e.target.closest('tr[data-i]');
+  if (!tr) return;
+  openDetail(currentFiltered[Number(tr.dataset.i)]);
+});
+document.getElementById('panelClose').addEventListener('click', closeDetail);
+scrim.addEventListener('click', closeDetail);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+qEl.addEventListener('input', render);
+catSel.addEventListener('change', render);
+locSel.addEventListener('change', render);
+rebuildSelects();
+render();
+if (CSV_URL.trim()) loadFromCsv(CSV_URL.trim());
+</script>
+</body>
+</html>
+
