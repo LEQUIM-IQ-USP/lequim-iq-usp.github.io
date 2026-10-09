@@ -20,9 +20,8 @@ button{cursor:pointer}button:disabled{cursor:default;opacity:.48}a{color:var(--b
 .skip{position:absolute;left:16px;top:-100px;background:var(--paper);padding:12px;z-index:20}.skip:focus{top:12px}
 .brand{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:28px}
 .logo{display:block;width:210px;height:auto;max-width:100%;mix-blend-mode:multiply}
-.brand-label{color:var(--muted);font-size:13px;text-align:right}.brand-label strong{display:block;color:var(--blue);font-size:16px;letter-spacing:.09em}
+.brand-label{color:var(--muted);font-size:13px;text-align:right}.brand-label strong{display:block;color:var(--blue);font-size:48px;line-height:1.1;font-weight:750;letter-spacing:.04em;margin-bottom:6px}
 .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:28px;margin-bottom:24px}
-.eyebrow{margin:0 0 8px;color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
 h1{font-size:clamp(28px,3.5vw,40px);line-height:1.15;letter-spacing:-.035em;margin:0 0 12px}
 .lede{margin:0;color:var(--muted);max-width:62ch;font-size:15px}
 .btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:44px;padding:9px 15px;background:var(--paper);color:var(--blue);border:1px solid var(--line);border-radius:9px;text-decoration:none;font-weight:600;font-size:14px}
@@ -59,9 +58,9 @@ dialog::backdrop{background:#102d4366;backdrop-filter:blur(2px)}.panel-top{posit
 #printLabel{display:none}body.modal-open{overflow:hidden}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(min-width:1050px){.filters{position:sticky;top:12px;z-index:3}#results{scroll-margin-top:230px}}
 @media(max-width:900px){.wrap{padding:24px 20px 40px}.filter-grid{grid-template-columns:1fr 1fr}.search-field{grid-column:1/-1}.hero{align-items:flex-start}td,th{padding:14px 12px}th:nth-child(1){width:30%}th:nth-child(3){width:19%}th:nth-child(6){width:10%}}
-@media(max-width:700px){.wrap{padding:20px 16px 32px}.brand{margin-bottom:20px;gap:12px}.logo{width:180px}.brand-label{font-size:11px}.brand-label strong{font-size:13px}.hero{display:block;margin-bottom:20px}.hero .btn{margin-top:18px}.lede{font-size:14px}h1{font-size:30px}.filters{padding:16px}.filter-grid{gap:12px}.filter-bottom{gap:8px;align-items:flex-start}.sort{display:block;min-width:0;flex:1}.sort label{font-size:11px;margin-bottom:5px}.sort select{width:100%;max-width:220px}.clear{align-self:flex-end;padding:8px 0 8px 8px;white-space:nowrap}.results-heading{align-items:flex-start;flex-direction:column;gap:4px;margin-top:22px}
+@media(max-width:700px){.wrap{padding:20px 16px 32px}.brand{margin-bottom:20px;gap:12px}.logo{width:180px}.brand-label{font-size:11px}.brand-label strong{font-size:32px}.hero{display:block;margin-bottom:20px}.hero .btn{margin-top:18px}.lede{font-size:14px}h1{font-size:30px}.filters{padding:16px}.filter-grid{gap:12px}.filter-bottom{gap:8px;align-items:flex-start}.sort{display:block;min-width:0;flex:1}.sort label{font-size:11px;margin-bottom:5px}.sort select{width:100%;max-width:220px}.clear{align-self:flex-end;padding:8px 0 8px 8px;white-space:nowrap}.results-heading{align-items:flex-start;flex-direction:column;gap:4px;margin-top:22px}
 .tablewrap{background:none;border:0;overflow:visible}table,tbody{display:block;width:100%}thead{display:none}tbody{display:grid;gap:12px}tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;background:white;border:1px solid var(--line);border-radius:12px;padding:16px;position:relative}td{display:block;padding:0;border:0;font-size:13px}td::before{content:attr(data-label);display:block;font-size:10px;color:var(--muted);font-weight:600;margin-bottom:5px}td.name-cell{grid-column:1/-1;padding-right:48px}td.name-cell::before,td.action-cell::before{display:none}.name-button{font-size:15px}.reagent-id{font-size:11px}.action-cell{position:absolute;right:12px;top:12px}.category-cell{grid-column:1/-1}.detail-button{width:40px;height:40px}.pagination{flex-wrap:wrap;justify-content:center}.pagination>span{width:100%;text-align:center}.page-buttons{width:100%}.page-buttons .btn{flex:1}footer{display:block;margin-top:28px}footer a{display:inline-block;margin-top:12px}.panel-top{padding:12px 18px}.panel-body{padding:22px 18px}.detail-name{font-size:22px}.barcode-box{padding:12px}.fields{column-gap:16px}}
-@media(max-width:360px){.filter-grid{grid-template-columns:1fr}.search-field{grid-column:auto}.brand-label{max-width:88px}.logo{width:165px}.fields{grid-template-columns:1fr}.field.wide{grid-column:auto}.barcode-actions .btn{flex:1}}
+@media(max-width:360px){.filter-grid{grid-template-columns:1fr}.search-field{grid-column:auto}.brand-label{max-width:112px}.brand-label strong{font-size:26px}.logo{width:145px}.fields{grid-template-columns:1fr}.field.wide{grid-column:auto}.barcode-actions .btn{flex:1}}
 @media(prefers-reduced-motion:no-preference){button,a{transition:background .15s,color .15s}}
 @media print{@page{margin:10mm}body{background:white}body>*:not(#printLabel){display:none!important}#printLabel{display:block!important;width:85mm;max-width:100%;padding:4mm;border:1px dashed #777;color:#000;break-inside:avoid;font:10pt Arial,sans-serif}#printLabel h2{font-size:12pt;margin:0 0 2mm;overflow-wrap:anywhere}#printLabel p{margin:1mm 0;font-size:9pt}#printLabel svg{display:block;width:100%;height:auto;max-width:100%;margin:2mm 0}#printLabel .label-brand{font-size:8pt;font-weight:bold;margin-bottom:2mm}}
 </style>
@@ -74,7 +73,7 @@ dialog::backdrop{background:#102d4366;backdrop-filter:blur(2px)}.panel-top{posit
     <div class="brand-label"><strong>LEQUIM</strong>Reagentário · IQ-USP</div>
   </div>
   <header class="hero">
-    <div><p class="eyebrow">Reagentes, ao seu alcance</p><h1>Catálogo de reagentes</h1><p class="lede">Encontre o que você precisa no laboratório. Consulte a localização, os detalhes e o código de cada reagente.</p></div>
+    <div><h1>Catálogo de reagentes</h1><p class="lede">Encontre o que você precisa no laboratório. Consulte a localização, os detalhes e o código de cada reagente.</p></div>
     <button class="btn" id="refresh" type="button"><span aria-hidden="true">↻</span> Atualizar dados</button>
   </header>
   <div class="notice" id="notice" role="status" hidden></div>
